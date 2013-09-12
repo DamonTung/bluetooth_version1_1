@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" 
+    android:baselineAligned="false">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="#F0F"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textview1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="@string/textview1" >
+                
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview1psi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview1psi"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview1c"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview1c"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview1v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview1v"
+                android:textSize="20pt" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="#00F"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textview2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="@string/textview2" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview2psi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview2psi"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview2c"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview2c"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview2v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview2v"
+                android:textSize="20pt" >
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="#FFF"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/ImageView"
+            android:contentDescription="@string/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:src="@drawable/tpms1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="#0F0"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textview3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="@string/textview3" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview3psi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview3psi"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview3c"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview3c"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview3v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                 android:textSize="20pt"
+                android:text="@string/textview3v" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="#F00"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textview4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="@string/textview4" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview4psi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview4psi"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview4c"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview4c"
+                android:textSize="20pt" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/textview4v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/textview4v"
+                android:textSize="20pt" >
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
