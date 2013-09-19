@@ -1,8 +1,11 @@
 package dgz.bluetooth;
 
+import dgz.bluetooth.chatActivity.deviceListItem;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -11,7 +14,7 @@ import android.widget.TextView;
 public class dataViewActivity extends Activity implements OnClickListener {
 	
 	private ImageView imageView;
-	private TextView textView1;
+	private static TextView textView1;
 	private TextView textView2;
 	private TextView textView3;
 	private TextView textView4;
@@ -153,4 +156,31 @@ public class dataViewActivity extends Activity implements OnClickListener {
 
 	}
 
+	
+	//add start
+    public static  Handler DetectedHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg)
+        {
+        	//Toast.makeText(mContext, (String)msg.obj, Toast.LENGTH_SHORT).show();
+        	if(msg.what==2)
+        	{
+        		String objString =msg.obj.toString();
+        		textView1.setText("3"+objString);
+        	}
+        	
+        }
+    };
+    
+  /*  
+    private class UpdateThread extends Thread
+    {
+    	public void run() 
+    	{
+    		
+    		
+    	};
+    
+    }*/
+    //end
 }

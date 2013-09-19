@@ -335,6 +335,12 @@ public class chatActivity extends Activity implements OnItemClickListener ,OnCli
 						msg.obj = s;
 						msg.what = 1;
 						LinkDetectedHandler.sendMessage(msg);
+						//add start
+						Message msg2 = new Message();
+						msg2.obj = s;
+						msg2.what =2;
+						dataViewActivity.DetectedHandler.sendMessage(msg2);
+						//end
                     }
                 } catch (IOException e) {
                 	try {
