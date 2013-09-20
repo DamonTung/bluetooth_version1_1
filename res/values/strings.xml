@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, Bluetooth!</string>
-    <string name="app_name">胎压实时监测-DGZ</string>
+    <string name="app_name">胎压监测-DGZ</string>
     <string name="about">--關於TPMS--</string>
     <string name="image">app logo</string>
     <string name="textview1">左前车轮信息</string>
     <string name="textview2">左后车轮信息</string>
     <string name="textview3">右前车轮信息</string>
     <string name="textview4">右后车轮信息</string>
-    <string name="textview1psi">胎压 PSI</string>
-    <string name="textview2psi">胎压 PSI</string>
-    <string name="textview3psi">胎压 PSI</string>
-    <string name="textview4psi">胎压 PSI</string>
-    <string name="textview1c">温度 ℃</string>
-    <string name="textview2c">温度 ℃</string>
-    <string name="textview3c">温度 ℃</string>
-    <string name="textview4c">温度 ℃</string>
-    <string name="textview1v">电压 V</string>
-    <string name="textview2v">电压 V</string>
-    <string name="textview3v">电压 V</string>
-    <string name="textview4v">电压 V</string>
+    <string name="textview1psi">胎压 1</string>
+    <string name="textview2psi">胎压 2</string>
+    <string name="textview3psi">胎压3</string>
+    <string name="textview4psi">胎压 4</string>
+    <string name="textview1c">温度 1</string>
+    <string name="textview2c">温度2</string>
+    <string name="textview3c">温度 3</string>
+    <string name="textview4c">温度4</string>
+    <string name="psi">PSI</string>
+    <string name="c"> ℃</string>
 </resources>
