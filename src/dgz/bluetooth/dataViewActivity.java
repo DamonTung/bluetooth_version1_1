@@ -32,11 +32,7 @@ public class dataViewActivity extends Activity implements OnClickListener {
 	private static TextView textView3c;
 	private static TextView textView4c;
 
-	// private TextView textView1v;
-	// private TextView textView2v;
-	// private TextView textView3v;
-	// private TextView textView4v;
-
+	
 	OnClickListener listener1 = null;
 	OnClickListener listener2 = null;
 	OnClickListener listener3 = null;
@@ -47,6 +43,28 @@ public class dataViewActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dataview);
 		init();
+		/*Message msgTest=new Message();
+		msgTest.obj=" LFQ0 : 23 LFT0 : 32 LBQ0 : 24 LBT0 : 34 RFQ0 : 25 RFT0 : 36 RBQ0 : 24 RBT0 : 38 ";
+		msgTest.what=2;
+		MyHandler.handleMessage2(msgTest);*/
+		/*new Thread(){
+			public void run(){
+				while(true){
+					Message msg = new Message();
+					msg=MyHandler.handleMessage2(msg);
+					Bundle bundle = new Bundle();
+					bundle.putString("time", date);
+					msg.setData(bundle);
+					MyHandler.handleMessage2(msg);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+    }*/
 	}
 
 	private void init() {
@@ -68,11 +86,7 @@ public class dataViewActivity extends Activity implements OnClickListener {
 		textView3c = (TextView) findViewById(R.id.textview3c);
 		textView4c = (TextView) findViewById(R.id.textview4c);
 
-		// textView1v = (TextView) findViewById(R.id.textview1v);
-		// textView2v = (TextView) findViewById(R.id.textview2v);
-		// textView3v = (TextView) findViewById(R.id.textview3v);
-		// textView4v = (TextView) findViewById(R.id.textview4v);
-
+		
 		textView1.setText(R.string.textview1);
 		textView2.setText(R.string.textview2);
 		textView3.setText(R.string.textview3);
@@ -88,16 +102,7 @@ public class dataViewActivity extends Activity implements OnClickListener {
 		textView3c.setText(R.string.textview3c);
 		textView4c.setText(R.string.textview4c);
 
-		// textView1v.setText(R.string.textview1v);
-		// textView2v.setText(R.string.textview2v);
-		// textView3v.setText(R.string.textview3v);
-		// textView4v.setText(R.string.textview4v);
-
-		// textView1.setOnClickListener(listener1);
-		// textView2.setOnClickListener(listener2);
-		// textView3.setOnClickListener(listener3);
-		// textView4.setOnClickListener(listener4);
-
+		
 		listener1 = new OnClickListener() {
 
 			@Override
@@ -162,14 +167,6 @@ public class dataViewActivity extends Activity implements OnClickListener {
 
 	// add start
 	public static class MyHandler extends Handler {
-//		int indexLFQ;
-//		int indexLFT;
-//		int indexLBQ;
-//		int indexLBT;
-//		int indexRFQ;
-//		int indexRFT;
-//		int indexRBQ;
-//		int indexRBT;
 
 		public MyHandler() {
 			super();
@@ -194,6 +191,9 @@ public class dataViewActivity extends Activity implements OnClickListener {
 				// Toast.LENGTH_SHORT).show();
 				if (msg.what == 2) {
 					String objString = msg.obj.toString();
+					//String objString2=objString;
+				
+					//objString=" LFQ0 : 23 LFT0 : 32 LBQ0 : 33 LBT0 : 34 RFQ0 : 35 RFT0 : 36 RBQ0 : 37 RBT0 : 38 ";
 					try {
 						while (objString.length() >= 7) {
 							int indexLFQ=objString.indexOf("LFQ");
@@ -206,43 +206,49 @@ public class dataViewActivity extends Activity implements OnClickListener {
 							int indexRBT=objString.indexOf("RBT");
 							if (indexLFQ>0) {
 								int startIndex=indexLFQ+7;
-								textView1psi.setText(objString.substring(startIndex, startIndex)
-										+ "." + objString.substring(++startIndex, startIndex));
+								Log.v("dgz","indexLFQ="+Integer.toString(startIndex));
+								textView1psi.setText(objString.substring(startIndex, startIndex+1)
+										+ "." + objString.substring(startIndex+1, startIndex+2));
+								Log.v("dgz",objString.substring(startIndex, ++startIndex)
+										+ "." + objString.substring(startIndex, startIndex+1));
 							}
 							if(indexLFT>0){
 								int startIndex=indexLFT+7;
-								textView1c.setText(objString.substring(startIndex, ++startIndex));
+								Log.v("dgz","indexLFT="+Integer.toString(startIndex));
+								textView1c.setText(objString.substring(startIndex, startIndex+2));
 							}
 							if (indexLBQ>0){
 								int startIndex=indexLBQ+7;
-								textView2psi.setText(objString.substring(startIndex, startIndex)
-										+ "." + objString.substring(++startIndex,startIndex));
+								textView2psi.setText(objString.substring(startIndex, ++startIndex)
+										+ "." + objString.substring(startIndex,startIndex+2));
 							}
 							if(indexLBT>0){
 								int startIndex=indexLBT+7;
-								textView2c.setText(objString.substring(startIndex, ++startIndex));
+								textView2c.setText(objString.substring(startIndex, startIndex+2));
 							} 
 							if (indexRFQ>0) {
 								int startIndex=indexRFQ+7;
-								textView3psi.setText(objString.substring(startIndex, startIndex)
-										+ "." + objString.substring(++startIndex, startIndex));
+								textView3psi.setText(objString.substring(startIndex, ++startIndex)
+										+ "." + objString.substring(startIndex, ++startIndex));
 							}
 							if(indexRFT>0){
 								int startIndex=indexRFT+7;
-								textView3c.setText(objString.substring(startIndex, ++startIndex));
+								textView3c.setText(objString.substring(startIndex, startIndex+2));
 							} 
 							if (indexRBQ>0) {
 								int startIndex=indexRBQ+7;
-								textView4psi.setText(objString.substring(startIndex,startIndex)
-										+ "." + objString.substring(++startIndex, startIndex));
+								textView4psi.setText(objString.substring(startIndex,++startIndex)
+										+ "." + objString.substring(startIndex, ++startIndex));
 							}
 							if(indexRBT>0){
 								int startIndex=indexRBT+7;
-								textView4c.setText(objString.substring(startIndex, ++startIndex));
+								textView4c.setText(objString.substring(startIndex, startIndex+2));
 							} else {
 								Log.v("dgz", "数据读取有误。。");
 								// startActivity();
+								//break;
 							}
+							
 						}
 					} catch (Exception e) {
 						// TODO: handle exception
@@ -258,52 +264,14 @@ public class dataViewActivity extends Activity implements OnClickListener {
 
 	}
 
-	// public static Handler DetectedHandler = new Handler() {
-	// @Override
-	// public void handleMessage(Message msg) {
-	// try {
-	// // Toast.makeText(mContext, (String)msg.obj,
-	// // Toast.LENGTH_SHORT).show();
-	// if (msg.what == 2) {
-	// String objString = msg.obj.toString();
-	// if ((objString.substring(1, 4)).equals("LFQ")) {
-	// textView1psi.setText(objString.substring(8, 8) + "."
-	// + objString.substring(9, 9));
-	// textView1c.setText(objString.substring(18, 19));
-	// } else if ((objString.substring(1, 4)).equals("LBQ")) {
-	// textView2psi.setText(objString.substring(8, 8) + "."
-	// + objString.substring(9, 9));
-	// textView2c.setText(objString.substring(18, 19));
-	// } else if ((objString.substring(1, 4)).equals("RFQ")) {
-	// textView3psi.setText(objString.substring(8, 8) + "."
-	// + objString.substring(9, 9));
-	// textView3c.setText(objString.substring(18, 19));
-	// } else if ((objString.substring(1, 4)).equals("RBQ")){
-	// textView4psi.setText(objString.substring(8, 8) + "."
-	// + objString.substring(9, 9));
-	// textView4c.setText(objString.substring(18, 19));
-	// }
-	// else{
-	// Log.v("dgz","数据读取有误。。");
-	// //startActivity();
-	// }
-	// }
-	// } catch (Exception e) {
-	// // TODO: handle exception
-	// Log.v("dgz","。。读取字符异常。。。");
-	// e.printStackTrace();
-	// }
-	//
-	// }
-	// };
-
-	/*
-	 * private class UpdateThread extends Thread { public void run() {
-	 * 
-	 * 
-	 * };
-	 * 
-	 * }
-	 */
+	
+	
+	/*private class UpdateThread extends Thread { public void run() {
+		  onRestart();
+	  
+	 }
+	  
+	}*/
+	 
 	// end
 }

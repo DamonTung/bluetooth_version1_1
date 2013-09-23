@@ -10,12 +10,12 @@
     <string name="textview4">右后车轮信息</string>
     <string name="textview1psi">胎压 1</string>
     <string name="textview2psi">胎压 2</string>
-    <string name="textview3psi">胎压3</string>
+    <string name="textview3psi">胎压 3</string>
     <string name="textview4psi">胎压 4</string>
     <string name="textview1c">温度 1</string>
-    <string name="textview2c">温度2</string>
+    <string name="textview2c">温度 2</string>
     <string name="textview3c">温度 3</string>
-    <string name="textview4c">温度4</string>
+    <string name="textview4c">温度 4</string>
     <string name="psi">PSI</string>
     <string name="c"> ℃</string>
 </resources>
