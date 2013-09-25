@@ -187,8 +187,6 @@ public class dataViewActivity extends Activity implements OnClickListener {
 			// TODO Auto-generated method stub
 			// super.handleMessage(msg);
 			try {
-				// Toast.makeText(mContext, (String)msg.obj,
-				// Toast.LENGTH_SHORT).show();
 				if (msg.what == 2) {
 					String objString = msg.obj.toString();
 					//String objString2=objString;
@@ -207,7 +205,7 @@ public class dataViewActivity extends Activity implements OnClickListener {
 							if (indexLFQ>0) {
 								int startIndex=indexLFQ+7;
 								Log.v("dgz","indexLFQ="+Integer.toString(startIndex));
-								textView1psi.setText(objString.substring(startIndex, startIndex+1)
+								textView2psi.setText(objString.substring(startIndex, startIndex+1)
 										+ "." + objString.substring(startIndex+1, startIndex+2));
 								Log.v("dgz",objString.substring(startIndex, ++startIndex)
 										+ "." + objString.substring(startIndex, startIndex+1));
@@ -215,34 +213,34 @@ public class dataViewActivity extends Activity implements OnClickListener {
 							if(indexLFT>0){
 								int startIndex=indexLFT+7;
 								Log.v("dgz","indexLFT="+Integer.toString(startIndex));
-								textView1c.setText(objString.substring(startIndex, startIndex+2));
+								textView2c.setText(objString.substring(startIndex, startIndex+2));
 							}
 							if (indexLBQ>0){
 								int startIndex=indexLBQ+7;
-								textView2psi.setText(objString.substring(startIndex, ++startIndex)
+								textView1psi.setText(objString.substring(startIndex, ++startIndex)
 										+ "." + objString.substring(startIndex,startIndex+2));
 							}
 							if(indexLBT>0){
 								int startIndex=indexLBT+7;
-								textView2c.setText(objString.substring(startIndex, startIndex+2));
+								textView1c.setText(objString.substring(startIndex, startIndex+2));
 							} 
 							if (indexRFQ>0) {
 								int startIndex=indexRFQ+7;
-								textView3psi.setText(objString.substring(startIndex, ++startIndex)
+								textView4psi.setText(objString.substring(startIndex, ++startIndex)
 										+ "." + objString.substring(startIndex, ++startIndex));
 							}
 							if(indexRFT>0){
 								int startIndex=indexRFT+7;
-								textView3c.setText(objString.substring(startIndex, startIndex+2));
+								textView4c.setText(objString.substring(startIndex, startIndex+2));
 							} 
 							if (indexRBQ>0) {
 								int startIndex=indexRBQ+7;
-								textView4psi.setText(objString.substring(startIndex,++startIndex)
+								textView3psi.setText(objString.substring(startIndex,++startIndex)
 										+ "." + objString.substring(startIndex, ++startIndex));
 							}
 							if(indexRBT>0){
 								int startIndex=indexRBT+7;
-								textView4c.setText(objString.substring(startIndex, startIndex+2));
+								textView3c.setText(objString.substring(startIndex, startIndex+2));
 							} else {
 								Log.v("dgz", "数据读取有误。。");
 								// startActivity();

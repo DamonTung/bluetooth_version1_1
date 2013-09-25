@@ -2,9 +2,11 @@ package dgz.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.io.*;
 
 import dgz.bluetooth.R;
 import dgz.bluetooth.Bluetooth.ServerOrCilent;
@@ -302,6 +304,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 	// 读取数据
 	private class readThread extends Thread {
+
 		public void run() {
 
 			byte[] buffer = new byte[1024];
@@ -310,43 +313,55 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 			try {
 				mmInStream = socket.getInputStream();
+				Reader input = new InputStreamReader(mmInStream);
+				BufferedReader reader = new BufferedReader(input);
+				String s;
+				while ((s = reader.readLine()) !=null) {
+					Message msg = new Message();
+					msg.obj = s;
+					msg.what = 1;
+					LinkDetectedHandler.sendMessage(msg);
+					Message msg2 = new Message();
+					msg2.obj = s;
+					msg2.what = 2;
+					dataViewActivity.MyHandler.handleMessage2(msg2);
+					/*final String str=s;
+					new Thread() {
+						public void run() {
+							try {
+								Message msg2 = new Message();
+								msg2.obj = str;
+								msg2.what = 2;
+								dataViewActivity.MyHandler.handleMessage2(msg2);
+							} catch (Exception e) {
+								// TODO: handle exception
+							}
+						}
+					}.start();*/
+				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			while (true) {
-				try {
-					// Read from the InputStream
-					if ((bytes = mmInStream.read(buffer)) > 0) {
-						byte[] buf_data = new byte[bytes];
-						for (int i = 0; i < bytes; i++) {
-							buf_data[i] = buffer[i];
-						}
-						String s = new String(buf_data);
-						Message msg = new Message();
-						msg.obj = s;
-						msg.what = 1;
-						LinkDetectedHandler.sendMessage(msg);
-						// add start
-						Message msg2 = new Message();
-						msg2.obj = s;
-						msg2.what = 2;
-						dataViewActivity.MyHandler.handleMessage2(msg2);
-						// end
-					}
-				} catch (IOException e) {
-					try {
-						Log.v("dgz", "。。read线程出错。。");
-						mmInStream.close();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						Log.v("dgz", "。。read线程出错。。");
-						e1.printStackTrace();
-
-					}
-					break;
-				}
-			}
+			/*
+			 * while (true) { try { // Read from the InputStream if ((bytes =
+			 * mmInStream.read(buffer)) > 0) { byte[] buf_data = new
+			 * byte[bytes]; for (int i = 0; i < bytes; i++) { buf_data[i] =
+			 * buffer[i]; } //final String s = new String(buf_data); Message msg
+			 * = new Message(); msg.obj = s; msg.what = 1;
+			 * LinkDetectedHandler.sendMessage(msg); new Thread(){ public void
+			 * run() { try { Message msg2 = new Message(); msg2.obj = s;
+			 * msg2.what = 2; dataViewActivity.MyHandler.handleMessage2(msg2); }
+			 * catch (Exception e) { // TODO: handle exception } } }.start(); //
+			 * add start
+			 * 
+			 * // end } } catch (IOException e) { try { Log.v("dgz",
+			 * "。。read线程出错。。"); mmInStream.close(); } catch (IOException e1) {
+			 * // TODO Auto-generated catch block Log.v("dgz", "。。read线程出错。。");
+			 * e1.printStackTrace();
+			 * 
+			 * } break; } }
+			 */
 		}
 	}
 
