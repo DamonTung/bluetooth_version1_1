@@ -1,5 +1,7 @@
 package dgz.bluetooth;
 
+import java.util.ArrayList;
+
 import dgz.bluetooth.chatActivity.deviceListItem;
 import android.R.integer;
 import android.app.Activity;
@@ -11,6 +13,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +40,10 @@ public class dataViewActivity extends Activity implements OnClickListener {
 	OnClickListener listener2 = null;
 	OnClickListener listener3 = null;
 	OnClickListener listener4 = null;
+	
+	Adapter dataViewAdapter=new dataViewAdapter();
+	ArrayList<dataViewItem> dataViewItems;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
