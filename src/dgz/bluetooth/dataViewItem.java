@@ -9,9 +9,10 @@ package dgz.bluetooth;
  */
 public class dataViewItem {
 	String str;
-	int temperature;
-	if
-	public int getTemperature() {
+	float temperature;
+	float pressure;
+	
+	public float getTemperature() {
 		return temperature;
 	}
 
@@ -20,6 +21,7 @@ public class dataViewItem {
 	}
 
 	public float getPressure() {
+		
 		return pressure;
 	}
 
@@ -27,8 +29,7 @@ public class dataViewItem {
 		this.pressure = pressure;
 	}
 
-	float pressure;
-	
+		
 	public dataViewItem(String string) {
 		// TODO 自动生成的构造函数存根
 		this.str=string;

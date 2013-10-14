@@ -5,17 +5,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.UUID;
 import java.io.*;
 
 import dgz.bluetooth.R;
 import dgz.bluetooth.Bluetooth.ServerOrCilent;
+import android.R.string;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,7 +56,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	private BluetoothServerSocket mserverSocket = null;
 	private ServerThread startServerThread = null;
 	private clientThread clientConnectThread = null;
-	private BluetoothSocket socket = null;
+	public static BluetoothSocket socket = null;
 	private BluetoothDevice device = null;
 	private readThread mreadThread = null;;
 	private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
@@ -179,9 +184,47 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				msg.obj = "已经连接上服务端！可以发送信息。";
 				msg.what = 0;
 				LinkDetectedHandler.sendMessage(msg);
+				
 				// 启动接受数据
 				mreadThread = new readThread();
 				mreadThread.start();
+				
+				/*Message msgHello=new Message();
+				msgHello.obj="#h";//呼叫单片机
+				msgHello.what=0;
+				LinkDetectedHandler.sendMessage(msgHello);
+				
+				String strHello=mreadThread.getString("#o");
+				while(strHello==null){
+					Message msgMessage=new Message();
+					msgMessage.obj="。。等待单片机响应呼叫命令。。。";
+					msgMessage.what=1;
+					LinkDetectedHandler.sendMessage(msgMessage);
+					//break;
+				}
+				
+				Message msgConnectionMessage=new Message();
+				msgConnectionMessage.obj="#c";//与单片机建立连接
+				msgConnectionMessage.what=0;
+				LinkDetectedHandler.sendMessage(msgConnectionMessage);
+				
+				String strConnectionString=mreadThread.getString("#k");
+				while(strConnectionString==null){
+					Message msgMessage=new Message();
+					msgMessage.obj="。。等待单片机响应建立连接命令。。。";
+					msgMessage.what=1;
+					LinkDetectedHandler.sendMessage(msgMessage);
+					//break;
+				}
+				Message msgRequestDataMessage=new Message();
+				msgRequestDataMessage.obj="#r";
+				msgRequestDataMessage.what=0;
+				LinkDetectedHandler.sendMessage(msgRequestDataMessage);
+				*/
+				//String strDataString=mreadThread.getString("@e");
+				Intent intentChtoViewIntent =new Intent(chatActivity.this,dataViewActivity.class);
+				startActivity(intentChtoViewIntent);
+				
 			} catch (IOException e) {
 				Log.e("connect", "", e);
 				Message msg = new Message();
@@ -221,6 +264,14 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				msg2.obj = info;
 				msg.what = 0;
 				LinkDetectedHandler.sendMessage(msg2);
+				
+				/*Toast.makeText(mContext, "呼叫单片机。。。等待响应命令", Toast.LENGTH_SHORT).show();
+				
+				Message msg3=new Message();
+				msg3.obj="#h";//呼叫单片机
+				msg3.what=0;
+				LinkDetectedHandler.sendMessage(msg3);*/
+				
 				// 启动接受数据
 				mreadThread = new readThread();
 				mreadThread.start();
@@ -304,6 +355,30 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 	// 读取数据
 	private class readThread extends Thread {
+		Hashtable<String,String> hMap=new Hashtable<String, String>();
+		Iterator<String> iteratorHMap = hMap.keySet().iterator();
+		
+		public readThread() {
+			// TODO 自动生成的构造函数存根
+		}
+		
+		//@SuppressWarnings("unused")
+		public String getString(String str){
+			
+			return hMap.get(str);
+		}
+		
+		public String getDataString(){
+			while(iteratorHMap.hasNext()){
+				return iteratorHMap.next();
+			}
+			return null;
+		}
+		
+		public void delElement(String str) {
+			if(str==iteratorHMap.next())
+				iteratorHMap.remove();			
+		}
 
 		public void run() {
 
@@ -313,18 +388,61 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 			try {
 				mmInStream = socket.getInputStream();
-				Reader input = new InputStreamReader(mmInStream);
+				InputStreamReader input = new InputStreamReader(mmInStream);
 				BufferedReader reader = new BufferedReader(input);
+				
 				String s;
 				while ((s = reader.readLine()) !=null) {
-					Message msg = new Message();
+					
+//					Thread.sleep(1000);
+					
+					/*if(s.indexOf("@s")==-1)
+						hMap.put(s, s);
+					else {*/
+						Message msg=new Message();
+						msg.obj=s;
+						msg.what=1;
+						LinkDetectedHandler.sendMessage(msg);
+						
+//						Message msgV=new Message();
+//						msgV.obj=s;
+//						msgV.what=2;
+						dataViewActivity.Two.obtainMessage(2, s).sendToTarget();
+						
+					//}
+					
+					/*Message msg = new Message();
 					msg.obj = s;
 					msg.what = 1;
+					while(!(msg.obj.toString()).equalsIgnoreCase("#o")){
+						Message msgMessage=new Message();
+						msgMessage.obj="。。等待单片机响应呼叫命令。。。";
+						msgMessage.what=1;
+						LinkDetectedHandler.sendMessage(msgMessage);
+						//break;
+					}
+					String infoString="#c";
+					msg.obj=infoString;
 					LinkDetectedHandler.sendMessage(msg);
+					while(!(msg.obj.toString()).equalsIgnoreCase("#k")){
+						Message msgMessage=new Message();
+						msgMessage.obj="。。等待单片机响应请求连接命令。。。";
+						msgMessage.what=1;
+						LinkDetectedHandler.sendMessage(msgMessage);
+					}
+					infoString="#r";
+					msg.obj=infoString;
+					LinkDetectedHandler.sendMessage(msg);
+					Message msgMessage=new Message();
+					msgMessage.obj="。。等待单片机发送数据。。。";
+					msgMessage.what=1;
+					LinkDetectedHandler.sendMessage(msgMessage);
+					
+					//if(!s.equalsIgnoreCase("#o"))break;
 					Message msg2 = new Message();
 					msg2.obj = s;
-					msg2.what = 2;
-					dataViewActivity.MyHandler.handleMessage2(msg2);
+					msg2.what = 2;*/
+					//dataViewActivity.MyHandler.handleMessage2(msg2);
 					/*final String str=s;
 					new Thread() {
 						public void run() {
@@ -361,7 +479,10 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			 * e1.printStackTrace();
 			 * 
 			 * } break; } }
-			 */
+			 */ catch (Exception e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
 		}
 	}
 
