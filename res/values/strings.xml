@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, Bluetooth!</string>
-    <string name="app_name">胎压监测-DGZ</string>
+    <string name="app_name">胎压监测-2.0</string>
     <string name="about">--關於TPMS--</string>
     <string name="image">app logo</string>
     <string name="textview1">左前车轮信息</string>

@@ -54,10 +54,7 @@ public class dataViewActivity extends Activity  implements OnClickListener {
 	OnClickListener listener3 = null;
 	OnClickListener listener4 = null;
 	
-	static ArrayAdapter<String> dataViewArrayAdapter;
-	//Adapter dataViewAdapter=new dataViewAdapter();
-	ArrayList<dataViewItem> dataViewItems;
-	
+		
 	Context myContext=this;
 	
 
@@ -65,30 +62,9 @@ public class dataViewActivity extends Activity  implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dataview);
-		//ListView listViewDataView=(ListView)findViewById(R.id.listDataView);
+		
 		init();
-		/*Message msgTest=new Message();
-		msgTest.obj=" LFQ0 : 23 LFT0 : 32 LBQ0 : 24 LBT0 : 34 RFQ0 : 25 RFT0 : 36 RBQ0 : 24 RBT0 : 38 ";
-		msgTest.what=2;
-		MyHandler.handleMessage2(msgTest);*/
-		/*new Thread(){
-			public void run(){
-				while(true){
-					Message msg = new Message();
-					msg=MyHandler.handleMessage2(msg);
-					Bundle bundle = new Bundle();
-					bundle.putString("time", date);
-					msg.setData(bundle);
-					MyHandler.handleMessage2(msg);
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-    }*/
+		
 	}
 
 	private void init() {
@@ -189,10 +165,76 @@ public class dataViewActivity extends Activity  implements OnClickListener {
 
 	}
 	
-	public static void setValue()
+	public static void setValue(String str)
 	{
-		textView1.setText("");
-		textView1.setText("1");
+		String string=str;
+		String[] value=new String[8];
+		int startIndex=string.indexOf("@s");
+		
+		if(Integer.parseInt(string.substring(startIndex+2, startIndex+3))==0)
+			value[0] +="+";
+		else {
+			value[0] +="-";
+		}
+		value[0] +=string.substring(startIndex+3, startIndex+5)+"."+string.substring(startIndex+5, startIndex+8);
+		textView1psi.setText(value[0]);
+		
+		if(Integer.parseInt(string.substring(startIndex+7, startIndex+8))==0)
+			value[1] +="+";
+		else {
+			value[1] +="-";
+		}
+		value[1] +=string.substring(startIndex+8, startIndex+10)+"."+string.substring(startIndex+10, startIndex+13);
+		textView1c.setText(value[1]);
+		
+		if(Integer.parseInt(string.substring(startIndex+12, startIndex+13))==0)
+			value[2] +="+";
+		else {
+			value[2] +="-";
+		}
+		value[2] +=string.substring(startIndex+13, startIndex+15)+"."+string.substring(startIndex+15, startIndex+18);
+		textView2psi.setText(value[2]);
+		
+		if(Integer.parseInt(string.substring(startIndex+17, startIndex+18))==0)
+			value[3] +="+";
+		else {
+			value[3] +="-";
+		}
+		value[3] +=string.substring(startIndex+18, startIndex+20)+"."+string.substring(startIndex+20, startIndex+22);
+		textView2c.setText(value[3]);
+		
+		if(Integer.parseInt(string.substring(startIndex+22, startIndex+23))==0)
+			value[4] +="+";
+		else {
+			value[4] +="-";
+		}
+		value[4] +=string.substring(startIndex+23, startIndex+25)+"."+string.substring(startIndex+25, startIndex+27);
+		textView3psi.setText(value[4]);
+		
+		if(Integer.parseInt(string.substring(startIndex+27, startIndex+28))==0)
+			value[5] +="+";
+		else {
+			value[5] +="-";
+		}
+		value[5] +=string.substring(startIndex+28, startIndex+30)+"."+string.substring(startIndex+30, startIndex+32);
+		textView3c.setText(value[5]);
+		
+		if(Integer.parseInt(string.substring(startIndex+32, startIndex+33))==0)
+			value[6] +="+";
+		else {
+			value[6] +="-";
+		}
+		value[6] +=string.substring(startIndex+33, startIndex+35)+"."+string.substring(startIndex+35, startIndex+37);
+		textView4psi.setText(value[6]);
+		
+		if(Integer.parseInt(string.substring(startIndex+37, startIndex+38))==0)
+			value[7] +="+";
+		else {
+			value[7] +="-";
+		}
+		value[7] +=string.substring(startIndex+38, startIndex+40)+"."+string.substring(startIndex+40, startIndex+42);
+		textView4c.setText(value[7]);
+		
 	}
 	
 
@@ -206,16 +248,11 @@ public class dataViewActivity extends Activity  implements OnClickListener {
 			try {
 				if (msg.what == 2) {
 					String objString = msg.obj.toString();
-					//dataViewArrayAdapter=new ArrayAdapter<String>(dataViewActivity.this, R.layout.dataview, objString);
-					//String objString2=objString;
-				
-					//objString=" LFQ0 : 23 LFT0 : 32 LBQ0 : 33 LBT0 : 34 RFQ0 : 35 RFT0 : 36 RBQ0 : 37 RBT0 : 38 ";
+					
 					try {
-//						setValue();
-						
-
-						
-						if (objString.length() >= 7) {
+						setValue(objString);
+					
+						/*if (objString.length() >= 7) {
 							int indexLFQ=objString.indexOf("LFQ");
 							int indexLFT=objString.indexOf("LFT");
 							int indexLBQ=objString.indexOf("LBQ");
@@ -272,7 +309,7 @@ public class dataViewActivity extends Activity  implements OnClickListener {
 							}
 							
 							
-						}
+						}*/
 					} catch (Exception e) {
 						// TODO: handle exception
 					}

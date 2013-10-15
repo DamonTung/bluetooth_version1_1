@@ -189,38 +189,49 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				mreadThread = new readThread();
 				mreadThread.start();
 				
-				/*Message msgHello=new Message();
-				msgHello.obj="#h";//呼叫单片机
+				Message msgHello=new Message();
+				msgHello.obj="呼叫单片机。。发送命令#h";//呼叫单片机
 				msgHello.what=0;
 				LinkDetectedHandler.sendMessage(msgHello);
 				
-				String strHello=mreadThread.getString("#o");
-				while(strHello==null){
-					Message msgMessage=new Message();
-					msgMessage.obj="。。等待单片机响应呼叫命令。。。";
-					msgMessage.what=1;
-					LinkDetectedHandler.sendMessage(msgMessage);
-					//break;
+				sendMessageHandle("#h");
+				
+				
+				Message msgHelloWait=new Message();
+				msgHelloWait.obj="等待单片机响应呼叫命令。。。";
+				msgHelloWait.what=0;
+				LinkDetectedHandler.sendMessage(msgHelloWait);
+				
+				String strHelloString=null;
+				while(strHelloString==null){
+					strHelloString=mreadThread.getString("#o");
 				}
+				
 				
 				Message msgConnectionMessage=new Message();
-				msgConnectionMessage.obj="#c";//与单片机建立连接
+				msgConnectionMessage.obj="呼叫单片机成功，发送建立连接命令#c，";//与单片机建立连接
 				msgConnectionMessage.what=0;
 				LinkDetectedHandler.sendMessage(msgConnectionMessage);
+				sendMessageHandle("#c");
 				
-				String strConnectionString=mreadThread.getString("#k");
+				Message msgConnection=new Message();
+				msgConnection.obj="等待单片机响应建立连接命令。。。";
+				msgConnection.what=0;
+				LinkDetectedHandler.sendMessage(msgConnection);
+				
+				String strConnectionString=null;
 				while(strConnectionString==null){
-					Message msgMessage=new Message();
-					msgMessage.obj="。。等待单片机响应建立连接命令。。。";
-					msgMessage.what=1;
-					LinkDetectedHandler.sendMessage(msgMessage);
-					//break;
+					
+					strConnectionString=mreadThread.getString("#k");
+					
 				}
+				
 				Message msgRequestDataMessage=new Message();
-				msgRequestDataMessage.obj="#r";
+				msgRequestDataMessage.obj="建立连接成功，准备接收数据，发送命令#r";
 				msgRequestDataMessage.what=0;
-				LinkDetectedHandler.sendMessage(msgRequestDataMessage);
-				*/
+				sendMessageHandle(msgRequestDataMessage.obj.toString());
+				sendMessageHandle("#r");
+				
 				//String strDataString=mreadThread.getString("@e");
 				Intent intentChtoViewIntent =new Intent(chatActivity.this,dataViewActivity.class);
 				startActivity(intentChtoViewIntent);
@@ -396,9 +407,15 @@ public class chatActivity extends Activity implements OnItemClickListener,
 					
 //					Thread.sleep(1000);
 					
-					/*if(s.indexOf("@s")==-1)
+					if(s.indexOf("@s")==-1){
 						hMap.put(s, s);
-					else {*/
+						
+						Message msg=new Message();
+						msg.obj=s;
+						msg.what=1;
+						LinkDetectedHandler.sendMessage(msg);
+					}
+					else {
 						Message msg=new Message();
 						msg.obj=s;
 						msg.what=1;
@@ -409,7 +426,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 //						msgV.what=2;
 						dataViewActivity.Two.obtainMessage(2, s).sendToTarget();
 						
-					//}
+					}
 					
 					/*Message msg = new Message();
 					msg.obj = s;
