@@ -44,8 +44,14 @@ public class Bluetooth extends TabActivity {
         mTabHost.setOnTabChangedListener(new OnTabChangeListener(){
         	public void onTabChanged(String tabId) {
         		// TODO Auto-generated method stub    
-        		if(tabId.equals("Tab1"))
-        		{        			
+        		if(tabId.equals("Tab1")){
+        			
+        		}
+        		else if(tabId.equals("Tab2")){
+        			
+        		}
+        		else {
+        			
         		}
         	}         
         });

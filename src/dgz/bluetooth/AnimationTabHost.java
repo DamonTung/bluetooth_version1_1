@@ -54,7 +54,7 @@ public class AnimationTabHost extends TabHost {
 		super.setCurrentTab(index);
 
 		//View target=(View)findViewById(android.R.id.tabcontent);//android.R.id.tabhost
-		if(index > mCurrentTabID)
+		/*if(index > mCurrentTabID)
 		{
         	 TranslateAnimation translateAnimation = new TranslateAnimation      
              (      // x和y轴的起始和结束位置  
@@ -79,7 +79,7 @@ public class AnimationTabHost extends TabHost {
         	 translateAnimation.setDuration(durationMillis);      
         	 getCurrentView().startAnimation(translateAnimation); 
         	 //target.startAnimation(translateAnimation);
-		}
+		}*/
 		mCurrentTabID = index;
 	}
 }
