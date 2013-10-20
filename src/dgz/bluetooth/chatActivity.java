@@ -147,6 +147,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				mAdapter.notifyDataSetChanged();
 				mListView.setSelection(list.size() - 1);
 				
+			}else if(msg.what==3){
+				Bluetooth.mTabHost.setCurrentTab(2);
 			}
 			else {
 				list.add(new deviceListItem((String) msg.obj, false));
@@ -230,6 +232,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				msg.obj = "已经连接上服务端！可以发送信息。";
 				msg.what = 0;
 				LinkDetectedHandler.sendMessage(msg);
+				
+				//Bluetooth.mTabHost.setCurrentTab(2);
 				
 				Message msgHelloString = new Message();
 				msgHelloString.obj = "呼叫单片机。。发送命令#h";// 呼叫单片机
@@ -495,8 +499,12 @@ public class chatActivity extends Activity implements OnItemClickListener,
 						
 						//myDataSet.setDataString(s);
 						if(!isInitialized){
-							Intent intent=new Intent(chatActivity.this,dataViewActivity.class);
-							startActivity(intent);
+							/*Intent intent=new Intent(chatActivity.this,dataViewActivity.class);
+							startActivity(intent);*/
+							Message msgChangetTab=new Message();
+							msgChangetTab.obj="2";
+							msgChangetTab.what=3;
+							LinkDetectedHandler.sendMessage(msgChangetTab);
 							//Bluetooth.mTabHost.setCurrentTab(2);
 							//dataViewActivity.Two.obtainMessage(2, s).sendToTarget();
 						}else {
