@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dgz.bluetooth"
     android:versionCode="1"
-    android:versionName="2.0" >
+    android:versionName="1.2" >
 
     <application
         android:name="MyDataSet"
@@ -39,7 +39,7 @@
             android:screenOrientation="landscape" />
     </application>
 
-    <uses-sdk android:minSdkVersion="8" />
+    <uses-sdk android:minSdkVersion="14" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />

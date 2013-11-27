@@ -4,23 +4,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.Vector;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.io.*;
+
+import org.apache.http.impl.conn.tsccm.WaitingThread;
 
 import dgz.bluetooth.R;
 import dgz.bluetooth.Bluetooth.ServerOrCilent;
 import android.R.bool;
 import android.R.string;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -38,8 +49,15 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+
 public class chatActivity extends Activity implements OnItemClickListener,
 		OnClickListener {
+	
+	private static Lock lock = new ReentrantLock();
+	private static Condition conditionO = lock.newCondition();
+	private static Condition conditionK = lock.newCondition();
+	
+	public int countLinkNum = 0;
 	/** Called when the activity is first created. */
 
 	private ListView mListView;
@@ -49,8 +67,13 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	private EditText editMsgView;
 	deviceListAdapter mAdapter;
 	Context mContext;
+
+	public static boolean isInitialized = false;
+	public static boolean isConnected = false;
+	public static boolean isLinked=false;
+	public static Vector<String> vectorOStrings=new Vector<String>(1);
+	public static Vector<String> vectorKStrings=new Vector<String>(1);
 	
-	public static boolean isInitialized=false;
 
 	/* 一些常量，代表服务器的名称 */
 	public static final String PROTOCOL_SCHEME_L2CAP = "btl2cap";
@@ -63,10 +86,12 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	private clientThread clientConnectThread = null;
 	public static BluetoothSocket socket = null;
 	private BluetoothDevice device = null;
-	private readThread mreadThread = null;;
+	private readThread mreadThread = null;
+	
+	
 	private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
-	public  MyDataSet myDataSet=(MyDataSet)getApplication();
+	public MyDataSet myDataSet = (MyDataSet) getApplication();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -111,6 +136,12 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				if (Bluetooth.serviceOrCilent == ServerOrCilent.CILENT) {
+					try {
+						socket.close();
+					} catch (IOException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+					}
 					shutdownClient();
 				} else if (Bluetooth.serviceOrCilent == ServerOrCilent.SERVICE) {
 					shutdownServer();
@@ -120,6 +151,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				Toast.makeText(mContext, "已断开连接！", Toast.LENGTH_SHORT).show();
 			}
 		});
+		clientConnectThread = new clientThread();
+		clientConnectThread.start();
 	}
 
 	private Handler LinkDetectedHandler = new Handler() {
@@ -127,30 +160,24 @@ public class chatActivity extends Activity implements OnItemClickListener,
 		public synchronized void handleMessage(Message msg) {
 			// Toast.makeText(mContext, (String)msg.obj,
 			// Toast.LENGTH_SHORT).show();
-			if (msg.what == 1) {
+			if  (msg.what == 1) {//--从蓝牙端口接收数据并显示
 				list.add(new deviceListItem((String) msg.obj, true));
-			} else if(msg.what==8) {
-				String msgString=msg.obj.toString();
-				if (socket == null) {
-					//Toast.makeText(mContext, "没有连接", Toast.LENGTH_SHORT).show();
-					Log.v("dgz","socket 连接已断开。。");
-					return;
-				}
-				try {
-					OutputStream os = socket.getOutputStream();
-					os.write(msgString.getBytes());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				list.add(new deviceListItem(msgString, false));
-				mAdapter.notifyDataSetChanged();
-				mListView.setSelection(list.size() - 1);
-				
-			}else if(msg.what==3){
+			} else if (msg.what == 2) {//--向单片机发送数据，主要为建立连接的命令
+				String msgString = msg.obj.toString();
+				sendMessageHandle(msgString);
+			} else if (msg.what == 3) {//--若Tab(2)未初始化，则执行此代码
 				Bluetooth.mTabHost.setCurrentTab(2);
+			}else if(msg.what==4){//--单片机没有响应，即未接受到数据，跳转到Tab(0)
+				Toast.makeText(mContext, "==没有数据发送，请尝试重置单片机==",Toast.LENGTH_SHORT).show();
+				Bluetooth.mTabHost.setCurrentTab(0);
+				onDestroy();
+			} else if (msg.what == 5) {//--socket连接异常处理
+				Toast.makeText(mContext, "==蓝牙socket连接异常，请重试 ===",
+						Toast.LENGTH_SHORT).show();
+				Bluetooth.mTabHost.setCurrentTab(0);
+				onDestroy();
 			}
-			else {
+			else {//--
 				list.add(new deviceListItem((String) msg.obj, false));
 			}
 			mAdapter.notifyDataSetChanged();
@@ -162,10 +189,11 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	@Override
 	public synchronized void onPause() {
 		super.onPause();
+		//shutdownClient();
 	}
 
 	@Override
-	public synchronized void onResume() {
+	public synchronized void onResume() {// 此处启动客户端或服务端主线程
 		super.onResume();
 		if (Bluetooth.isOpen) {
 			Toast.makeText(mContext, "连接已经打开，可以通信。如果要再建立连接，请先断开！",
@@ -176,8 +204,10 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			String address = Bluetooth.BlueToothAddress;
 			if (!address.equals("null")) {
 				device = mBluetoothAdapter.getRemoteDevice(address);
-				clientConnectThread = new clientThread();
-				clientConnectThread.start();
+				if(clientConnectThread == null){
+					clientConnectThread = new clientThread();
+					clientConnectThread.start();
+				}
 				Bluetooth.isOpen = true;
 			} else {
 				Toast.makeText(mContext, "address is null !",
@@ -189,31 +219,55 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			Bluetooth.isOpen = true;
 		}
 	}
-
-	class MycountTime extends CountDownTimer {
-
-		public MycountTime(long millisInFuture, long countDownInterval) {
-			super(millisInFuture, countDownInterval);
-			// TODO 自动生成的构造函数存根
+	
+	public  void setVectorO(String string){//设置响应命令 #o
+		vectorOStrings.add(string);
+	}
+	public  String getVectorOString(){//获取 #o
+		if(vectorOStrings.size()==0){
+			
+			Log.v("dgz","vectorO 为空。。");
+			//sendMessageHandle("#h");
+			return "#oo";
+			
 		}
-
-		@Override
-		public void onTick(long millisUntilFinished) {
-			// TODO 自动生成的方法存根
-
-		}
-
-		@Override
-		public void onFinish() {
-			// TODO 自动生成的方法存根
-
-		}
+		return vectorOStrings.firstElement();
 
 	}
+		
+		
 
-	// 开启客户端
-	private class clientThread extends Thread {
+	/**
+	 * @return vectorKStrings
+	 */
+	public  String getVectorKStrings() {
+		if(vectorKStrings.size()==0){
+			
+			Log.v("dgz","vectorK 为空。。 ");
+			//sendMessageHandle("#c");
+			return "#kk";
+		}
+		return vectorKStrings.firstElement();
+	}
+
+	/**
+	 * @param vectorKStrings 要设置的 vectorKStrings
+	 */
+	public   void setVectorKStrings(String vectorKStrings) {
+		chatActivity.vectorKStrings.add(vectorKStrings);
+		
+	}
+	
+	/**  开启客户端
+	 * 此处启动与蓝牙的连接建立过程，同时启动监听端口，
+	 * 检测与蓝牙、单片机的数据传输
+	 * 
+	 * */
+	
+	
+	private class clientThread extends Thread { // 客户端主线程，
 		public void run() {
+			
 			try {
 				// 创建一个Socket连接：只需要服务器在注册时的UUID号
 				// socket =
@@ -223,103 +277,154 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				// 连接
 				Message msg2 = new Message();
 				msg2.obj = "请稍候，正在连接服务器:" + Bluetooth.BlueToothAddress;
-				msg2.what = 0;
 				LinkDetectedHandler.sendMessage(msg2);
-
-				socket.connect();
-
+				
+				Log.v("dgz", String.valueOf(socket.isConnected()));
+				Log.v("dgz", String.valueOf(socket.getRemoteDevice()));
+				
+				/** 
+				 * 建立socket连接，重复三次
+				 * 
+				 * */
+				socket.connect(); 
+				
+				while (countLinkNum < 3) {
+					countLinkNum++;
+					sleep(1000);
+					if (!socket.isConnected()) {
+						socket.connect();
+					}
+					else {
+						break;
+					}
+				}
+				
+				if(!socket.isConnected()){
+					LinkDetectedHandler.obtainMessage(5).sendToTarget();
+				}
+				
 				Message msg = new Message();
 				msg.obj = "已经连接上服务端！可以发送信息。";
-				msg.what = 0;
 				LinkDetectedHandler.sendMessage(msg);
 				
-				//Bluetooth.mTabHost.setCurrentTab(2);
+				//读线程启动
+				mreadThread = new readThread();
+				mreadThread.listStrings.clear();
+				mreadThread.start();
+				
+				sleep(3000);
 				
 				Message msgHelloString = new Message();
 				msgHelloString.obj = "呼叫单片机。。发送命令#h";// 呼叫单片机
-				msgHelloString.what = 0;
 				LinkDetectedHandler.sendMessage(msgHelloString);
 				
-				//sendMessageHandle("#h");
-				Message msgHello=new Message();
-				msgHello.obj="#h";
-				msgHello.what=8;
-				LinkDetectedHandler.sendMessage(msgHello);
+				Message msgLinkH = new Message();
+				msgLinkH.obj = "#h";
+				msgLinkH.what = 2;
+				LinkDetectedHandler.sendMessage(msgLinkH);
 				
-				Message msgLinkC=new Message();
-				msgLinkC.obj="#c";
-				msgLinkC.what=8;
-				
-				Message msgLinkR=new Message();
-				msgLinkR.obj="#r";
-				msgLinkR.what=8;
-				
-				
+				sleep(3000);
+				Log.v("dgz", "#h已发送。。");
+								
 				Message msgHelloWait = new Message();
 				msgHelloWait.obj = "等待单片机响应呼叫命令。。。";
-				msgHelloWait.what = 0;
 				LinkDetectedHandler.sendMessage(msgHelloWait);
-
-				// 启动接受数据
-				 //Looper.prepare();
-				mreadThread = new readThread();
-				mreadThread.start();
-
-				try {
+				
+				String LinkO=getVectorOString();
+				int countO=0;
+				do {
+					Log.v("dgz", LinkO);
+					countO++;
+					sleep(1000);
+					LinkO=getVectorOString();
+				} while (!LinkO.equals("#o")&&countO<3);
+				
+			
+				
+				if(!LinkO.equals("#o")){
+					Message LinkFalse=new Message();
+					LinkFalse.obj = "===单片机未响应，请尝试重置单片机====";
+					LinkDetectedHandler.sendMessage(LinkFalse);
 					
-					String strHelloString = null;
-					//mreadThread.hMap.put("#o", "#o");
-					int countN = 0;
-					while (mreadThread.getLinkString("#o")) {
-						//strHelloString = mreadThread.getString("#o");
-						for (int i = 0; i < 3; i++) {
-							while (countN < 500000) {
-								countN++;
-							}
-							LinkDetectedHandler.sendMessage(msgHelloWait);
-						}
-					}
-					Message msgConnectionMessage = new Message();
-					msgConnectionMessage.obj = "呼叫单片机成功，发送建立连接命令#c，";// 与单片机建立连接
-					msgConnectionMessage.what = 0;
-					LinkDetectedHandler.sendMessage(msgConnectionMessage);
+					sleep(2000);
 					
-					//sendMessageHandle("#c");
-					LinkDetectedHandler.sendMessage(msgLinkC);
-					
-					Message msgConnection = new Message();
-					msgConnection.obj = "等待单片机响应建立连接命令。。。";
-					msgConnection.what = 0;
-					LinkDetectedHandler.sendMessage(msgConnection);
-					
-					//String strConnectionString = null;
-					/*while (!strConnectionString.equalsIgnoreCase(mreadThread.getString("#k"))) {
-						strConnectionString = mreadThread.getString("#k");
-
-					}*/
-					while(mreadThread.getLinkString("#k")){
-						
-					}
-					Message msgRequestDataMessage = new Message();
-					msgRequestDataMessage.obj = "建立连接成功，准备接收数据，发送命令#r";
-					msgRequestDataMessage.what = 0;
-					sendMessageHandle(msgRequestDataMessage.obj.toString());
-					//sendMessageHandle("#r");
-					
-					LinkDetectedHandler.sendMessage(msgLinkR);
-					Looper.loop();
-					
-				} catch (Exception e) {
-					// TODO: handle exception
-					Log.v("dgz", "连接出错。。。");
+					LinkDetectedHandler.obtainMessage(4).sendToTarget();;
 				}
+				
+				sleep(3000);
+								
+				Message msgConnectionMessage = new Message();
+				msgConnectionMessage.obj = "呼叫单片机成功，发送建立连接命令#c，";// 与单片机建立连接
+				LinkDetectedHandler.sendMessage(msgConnectionMessage);
+
+				
+				Message msgLinkC = new Message();
+				msgLinkC.obj = "#c";
+				msgLinkC.what = 2;
+				LinkDetectedHandler.sendMessage(msgLinkC);
+				
+				sleep(3000);
+				
+				Log.v("dgz", "#c发送。。");
+				Message msgConnection = new Message();
+				msgConnection.obj = "等待单片机响应建立连接命令。。。";
+				LinkDetectedHandler.sendMessage(msgConnection);
+				
+				Log.v("dgz", "#k: "+String.valueOf(mreadThread.getLinkString("#k")));
+				
+
+				String LinkK=getVectorKStrings();
+				int countK=0;
+				do{
+					Log.v("dgz", LinkK);
+					countK++;
+					sleep(1000);
+					LinkK=getVectorKStrings();
+				}
+				while(!LinkK.equals("#k")&&countK<3);
+				
+				sleep(3000);
+				
+				if(!LinkK.equals("#k")){
+					Message LinkFalseK=new Message();
+					LinkFalseK.obj = "===单片机未响应，请尝试重新连接====";
+					LinkDetectedHandler.sendMessage(LinkFalseK);
+					
+					sleep(1000);
+					
+					LinkDetectedHandler.obtainMessage(4).sendToTarget();;
+				}
+				
+				Message msgRequestDataMessage = new Message();
+				msgRequestDataMessage.obj = "建立连接成功，准备接收数据，发送命令#r";
+				LinkDetectedHandler.sendMessage(msgRequestDataMessage);
+				
+				Message msgLinkR = new Message();
+				msgLinkR.obj = "#r";
+				msgLinkR.what = 2;
+				LinkDetectedHandler.sendMessage(msgLinkR);
+				
+				Log.v("dgz", "isConnected: " + String.valueOf(isConnected));
 
 			} catch (IOException e) {
-				Log.e("connect", "", e);
-				Message msg = new Message();
-				msg.obj = "连接服务端异常！断开连接重新试一试。";
-				msg.what = 0;
-				LinkDetectedHandler.sendMessage(msg);
+				
+					Log.e("connect", "", e);
+					Message msg = new Message();
+					msg.obj = "连接服务端异常！断开连接重新试一试。";
+					LinkDetectedHandler.sendMessage(msg);
+					try {
+						sleep(1000);
+					} catch (InterruptedException e1) {
+						// TODO 自动生成的 catch 块
+						e1.printStackTrace();
+					}					
+					LinkDetectedHandler.obtainMessage(5).sendToTarget();
+			
+			}
+			
+			catch (InterruptedException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
 			}
 		}
 	};
@@ -354,7 +459,6 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				msg.what = 0;
 				LinkDetectedHandler.sendMessage(msg2);
 
-				
 				// 启动接受数据
 				mreadThread = new readThread();
 				mreadThread.start();
@@ -419,18 +523,25 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	}
 
 	// 发送数据
-	public synchronized void sendMessageHandle(String msg) {
-		if (socket == null) {
-			Toast.makeText(mContext, "没有连接", Toast.LENGTH_SHORT).show();
-			return;
-		}
+	
+	public void sendMessageHandle(String msg)  {
+		Log.v("dgz", String.valueOf(socket));
 		try {
-			OutputStream os = socket.getOutputStream();
-			os.write(msg.getBytes());
+			if(socket.isConnected()){
+				OutputStream os = socket.getOutputStream();
+				os.write(msg.getBytes());
+				os.flush();
+			}
+			else{
+				Message msgSocketNull= new Message();
+				msgSocketNull.obj="socket 连接不存在。。请重新连接。。";
+				LinkDetectedHandler.sendMessage(msgSocketNull);
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 		list.add(new deviceListItem(msg, false));
 		mAdapter.notifyDataSetChanged();
 		mListView.setSelection(list.size() - 1);
@@ -438,11 +549,10 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 	// 读取数据
 	private class readThread extends Thread {
-		Hashtable<String, String> hMap = new Hashtable<String, String>();
-		Iterator<String> iteratorHMap = hMap.keySet().iterator();
-		ArrayList<String> listStrings=new ArrayList<String>();
 		
-		public boolean getLinkString(String string){
+		ArrayList<String> listStrings = new ArrayList<String>();
+
+		public boolean getLinkString(String string) {
 			return listStrings.contains(string);
 		}
 
@@ -450,81 +560,69 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			// TODO 自动生成的构造函数存根
 		}
 
-		// @SuppressWarnings("unused")
-		public String getString(String str) {
-
-			return hMap.get(str);
-		}
-
-		public String getDataString() {
-			while (iteratorHMap.hasNext()) {
-				return iteratorHMap.next();
-			}
-			return null;
-		}
-
-		public void delElement(String str) {
-			if (str == iteratorHMap.next())
-				iteratorHMap.remove();
-		}
-
+		
 		public void run() {
-
-			byte[] buffer = new byte[1024];
-			int bytes;
 			InputStream mmInStream = null;
-
+			
 			try {
 				mmInStream = socket.getInputStream();
 				InputStreamReader input = new InputStreamReader(mmInStream);
-				BufferedReader reader = new BufferedReader(input);
+				BufferedReader reader = new BufferedReader(input,8192);
 
 				String s;
 				while ((s = reader.readLine()) != null) {
-
-					
+					isLinked=true;
+					isConnected = true;
 					if (s.indexOf("@s") == -1) {
-						//hMap.put(s, s);
+						
+						if(s.equals("#o")){
+							setVectorO(s);
+							
+						}else if (s.equals("#k")){
+							setVectorKStrings(s);
+							
+						}
+						
 						listStrings.add(s);
-						/*Message msg = new Message();
+
+						Message msg = new Message();
 						msg.obj = s;
 						msg.what = 1;
-						LinkDetectedHandler.sendMessage(msg);*/
+						LinkDetectedHandler.sendMessage(msg);
 
 					} else {
 						Message msg = new Message();
 						msg.obj = s;
 						msg.what = 1;
 						LinkDetectedHandler.sendMessage(msg);
-						
-						//myDataSet.setDataString(s);
-						if(!isInitialized){
-							/*Intent intent=new Intent(chatActivity.this,dataViewActivity.class);
-							startActivity(intent);*/
-							Message msgChangetTab=new Message();
-							msgChangetTab.obj="2";
-							msgChangetTab.what=3;
-							LinkDetectedHandler.sendMessage(msgChangetTab);
-							//Bluetooth.mTabHost.setCurrentTab(2);
-							//dataViewActivity.Two.obtainMessage(2, s).sendToTarget();
-						}else {
-							dataViewActivity.Two.obtainMessage(2, s).sendToTarget();
-						}
-						
-						
-					}
 
+						if (!isInitialized) {
+							
+							Message msgChangeTab = new Message();
+							msgChangeTab.obj = "2";
+							msgChangeTab.what = 3;
+							LinkDetectedHandler.sendMessage(msgChangeTab);
+							
+						} else {
+							dataViewActivity.Two.obtainMessage(2, s)
+									.sendToTarget();
+						}
+
+					}
+					
 					
 				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		
-			 catch (Exception e) {
+
+			catch (Exception e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
+			
+			
 		}
 	}
 
