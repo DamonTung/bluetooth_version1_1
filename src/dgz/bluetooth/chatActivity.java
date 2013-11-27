@@ -346,6 +346,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 					LinkFalse.obj = "===单片机未响应，请尝试重置单片机====";
 					LinkDetectedHandler.sendMessage(LinkFalse);
 					
+					Log.v("dgz","--#o没有收到--");
 					sleep(2000);
 					
 					LinkDetectedHandler.obtainMessage(4).sendToTarget();;
