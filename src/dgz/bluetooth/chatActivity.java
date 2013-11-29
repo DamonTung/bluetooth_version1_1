@@ -69,7 +69,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	private EditText editMsgView;
 	deviceListAdapter mAdapter;
 	Context mContext;
-
+	
 	public static boolean isInitialized = false;
 	public static boolean isConnected = false;
 	public static boolean isLinked=false;
@@ -156,30 +156,31 @@ public class chatActivity extends Activity implements OnItemClickListener,
 		//clientConnectThread = new clientThread();
 		//clientConnectThread.start();
 	}
-
-	private Handler LinkDetectedHandler = new Handler() {
+	
+	
+	private  Handler LinkDetectedHandler = new Handler() {
 		@Override
 		public synchronized void handleMessage(Message msg) {
 			// Toast.makeText(mContext, (String)msg.obj,
 			// Toast.LENGTH_SHORT).show();
-			if  (msg.what == 1) {//--从蓝牙端口接收数据并显示
+			if (msg.what == 1) {// --从蓝牙端口接收数据并显示
 				list.add(new deviceListItem((String) msg.obj, true));
-			} else if (msg.what == 2) {//--向单片机发送数据，主要为建立连接的命令
+			} else if (msg.what == 2) {// --向单片机发送数据，主要为建立连接的命令
 				String msgString = msg.obj.toString();
 				sendMessageHandle(msgString);
-			} else if (msg.what == 3) {//--若Tab(2)未初始化，则执行此代码
+			} else if (msg.what == 3) {// --若Tab(2)未初始化，则执行此代码
 				Bluetooth.mTabHost.setCurrentTab(2);
-			}else if(msg.what==4){//--单片机没有响应，即未接受到数据，跳转到Tab(0)
-				Toast.makeText(mContext, "==没有数据发送，请尝试重置单片机==",Toast.LENGTH_SHORT).show();
+			} else if (msg.what == 4) {// --单片机没有响应，即未接受到数据，跳转到Tab(0)
+				Toast.makeText(mContext, "==没有数据发送，请尝试重置单片机==",
+						Toast.LENGTH_SHORT).show();
 				Bluetooth.mTabHost.setCurrentTab(0);
 				onDestroy();
-			} else if (msg.what == 5) {//--socket连接异常处理
+			} else if (msg.what == 5) {// --socket连接异常处理
 				Toast.makeText(mContext, "==蓝牙socket连接异常，请重试 ===",
 						Toast.LENGTH_SHORT).show();
 				Bluetooth.mTabHost.setCurrentTab(0);
 				onDestroy();
-			}
-			else {//--
+			} else {// --
 				list.add(new deviceListItem((String) msg.obj, false));
 			}
 			mAdapter.notifyDataSetChanged();
@@ -305,6 +306,9 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				Message msg = new Message();
 				msg.obj = "已经连接上服务端！可以发送信息。";
 				LinkDetectedHandler.sendMessage(msg);
+				
+								
+			
 				
 				//读线程启动
 				mreadThread = new readThread();
@@ -603,7 +607,16 @@ public class chatActivity extends Activity implements OnItemClickListener,
 							msgChangeTab.what = 3;
 							LinkDetectedHandler.sendMessage(msgChangeTab);
 							
+							sleep(1500);
+							
+							dataViewActivity.Two.obtainMessage(2, s)
+							.sendToTarget();
+							
+							
 						} else {
+							
+							sleep(1000);
+							
 							dataViewActivity.Two.obtainMessage(2, s)
 									.sendToTarget();
 						}
@@ -625,6 +638,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			
 		}
 	}
+
+
 
 	@Override
 	protected void onDestroy() {
