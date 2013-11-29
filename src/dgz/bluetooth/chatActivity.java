@@ -58,6 +58,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 	private static Condition conditionK = lock.newCondition();
 	
 	public int countLinkNum = 0;
+	public int countO = 0;
+	public int countK = 0;
 	/** Called when the activity is first created. */
 
 	private ListView mListView;
@@ -228,7 +230,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			
 			Log.v("dgz","vectorO Îª¿Õ¡£¡£");
 			LinkDetectedHandler.obtainMessage(2, "#h").sendToTarget();
-			return "#oo";
+			return "oo";
 			
 		}
 		return vectorOStrings.firstElement();
@@ -245,7 +247,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 			
 			Log.v("dgz","vectorK Îª¿Õ¡£¡£ ");
 			LinkDetectedHandler.obtainMessage(2, "#c").sendToTarget();
-			return "#kk";
+			return "kk";
 		}
 		return vectorKStrings.firstElement();
 	}
@@ -328,8 +330,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				LinkDetectedHandler.sendMessage(msgHelloWait);
 				
 				String LinkO=getVectorOString();
-				int countO=0;
-				while (!LinkO.equals("#o")&&countO<3) {
+				
+				while (!LinkO.equals("#o") && countO<3) {
 					Log.v("dgz", LinkO);
 					countO++;
 					sleep(1000);
@@ -372,7 +374,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				
 
 				String LinkK=getVectorKStrings();
-				int countK=0;
+				
 				while(!LinkK.equals("#k")&&countK<3){
 					Log.v("dgz", LinkK);
 					countK++;
