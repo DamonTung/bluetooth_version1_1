@@ -151,8 +151,8 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				Toast.makeText(mContext, "已断开连接！", Toast.LENGTH_SHORT).show();
 			}
 		});
-		clientConnectThread = new clientThread();
-		clientConnectThread.start();
+		//clientConnectThread = new clientThread();
+		//clientConnectThread.start();
 	}
 
 	private Handler LinkDetectedHandler = new Handler() {
@@ -227,7 +227,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 		if(vectorOStrings.size()==0){
 			
 			Log.v("dgz","vectorO 为空。。");
-			//sendMessageHandle("#h");
+			LinkDetectedHandler.obtainMessage(2, "#h").sendToTarget();
 			return "#oo";
 			
 		}
@@ -244,7 +244,7 @@ public class chatActivity extends Activity implements OnItemClickListener,
 		if(vectorKStrings.size()==0){
 			
 			Log.v("dgz","vectorK 为空。。 ");
-			//sendMessageHandle("#c");
+			LinkDetectedHandler.obtainMessage(2, "#c").sendToTarget();
 			return "#kk";
 		}
 		return vectorKStrings.firstElement();
@@ -288,16 +288,13 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				 * */
 				socket.connect(); 
 				
-				while (countLinkNum < 3) {
+				while (countLinkNum < 3 && !socket.isConnected()) {
 					countLinkNum++;
 					sleep(1000);
-					if (!socket.isConnected()) {
-						socket.connect();
-					}
-					else {
-						break;
-					}
+					socket.connect();
 				}
+				
+				sleep(1000);
 				
 				if(!socket.isConnected()){
 					LinkDetectedHandler.obtainMessage(5).sendToTarget();
@@ -332,12 +329,12 @@ public class chatActivity extends Activity implements OnItemClickListener,
 				
 				String LinkO=getVectorOString();
 				int countO=0;
-				do {
+				while (!LinkO.equals("#o")&&countO<3) {
 					Log.v("dgz", LinkO);
 					countO++;
 					sleep(1000);
 					LinkO=getVectorOString();
-				} while (!LinkO.equals("#o")&&countO<3);
+				} 
 				
 			
 				
@@ -376,13 +373,13 @@ public class chatActivity extends Activity implements OnItemClickListener,
 
 				String LinkK=getVectorKStrings();
 				int countK=0;
-				do{
+				while(!LinkK.equals("#k")&&countK<3){
 					Log.v("dgz", LinkK);
 					countK++;
 					sleep(1000);
 					LinkK=getVectorKStrings();
 				}
-				while(!LinkK.equals("#k")&&countK<3);
+				
 				
 				sleep(3000);
 				
